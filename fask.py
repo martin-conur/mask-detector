@@ -43,7 +43,7 @@ def face_detection_and_mask_classifier(frame, faceDetectionNet, maskClassifierNe
     faces, locations, classifications = [],[],[]
 
     #for every detection do the classification
-    for i in range(detections.shape[2]):
+    for i in range(0, detections.shape[2]):
         #get the confidence of the prediction
         confidence = detections[0, 0, i, 2] #depends on the Nets outputs
         #if the confidence overpass the threshold value (CONFIDENCE hyperparameter)
@@ -70,15 +70,15 @@ def face_detection_and_mask_classifier(frame, faceDetectionNet, maskClassifierNe
 
             #appending the face and boundig box to the lists
             faces.append(face)
-            locations.append((x0, x1, y0, y1))
+            locations.append((x0, y0, x1, y1))
 
-            #if detect at least one face do the classification
-            if len(faces)>0:
-                faces = np.array(faces, dtype="float32")
-                classifications = maskClassifierNet.predict(faces, batch_size=16)
+    #if detect at least one face do the classification
+    if len(faces)>0:
+        faces = np.array(faces, dtype="float32")
+        classifications = maskClassifierNet.predict(faces, batch_size=16)
 
-            #return the face locations and the classification (with or without mask) as a tuple
-            return (locations, classifications)
+    #return the face locations and the classification (with or without mask) as a tuple
+    return (locations, classifications)
 
 print("[INFO] Cargando modelos deep learning ...")
 #face detection model
@@ -120,7 +120,7 @@ while True:
         color = (0, 255, 0) if label == "Con Mascarilla" else (0, 0, 255)
 
         #add in the label the probability that the class corresponds to mask or nomask
-        label = f"{label}: {max(mask, nomask)*100}"
+        label = f"{label}: {np.round(max(mask, nomask)*100, 2)}"
 
         #diplay bounding boxes and labels with an offset (10 px)
         cv2.putText(frame, label, (x0, y0-10), cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 2)
