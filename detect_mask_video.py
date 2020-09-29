@@ -5,13 +5,13 @@
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.models import load_model
-from imutils.video import VideoStream
 import numpy as np
 import argparse
-import imutils
 import time
 import cv2
 import os
+
+os.chdir(os.path.dirname(__file__))
 
 def detect_and_predict_mask(frame, faceNet, maskNet):
 	# grab the dimensions of the frame and then construct a blob
@@ -38,7 +38,7 @@ def detect_and_predict_mask(frame, faceNet, maskNet):
 
 		# filter out weak detections by ensuring the confidence is
 		# greater than the minimum confidence
-		if confidence > args["confidence"]:
+		if confidence > 0.5:
 			# compute the (x, y)-coordinates of the bounding box for
 			# the object
 			box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
@@ -74,40 +74,32 @@ def detect_and_predict_mask(frame, faceNet, maskNet):
 	# locations
 	return (locs, preds)
 
-# construct the argument parser and parse the arguments
-ap = argparse.ArgumentParser()
-ap.add_argument("-f", "--face", type=str,
-	default="face_detector",
-	help="path to face detector model directory")
-ap.add_argument("-m", "--model", type=str,
-	default="mask_detector.model",
-	help="path to trained face mask detector model")
-ap.add_argument("-c", "--confidence", type=float, default=0.5,
-	help="minimum probability to filter weak detections")
-args = vars(ap.parse_args())
 
 # load our serialized face detector model from disk
 print("[INFO] loading face detector model...")
-prototxtPath = os.path.sep.join([args["face"], "deploy.prototxt"])
-weightsPath = os.path.sep.join([args["face"],
-	"res10_300x300_ssd_iter_140000.caffemodel"])
+prototxtPath = os.path.join(os.getcwd(), "face_detector/deploy.prototxt")
+weightsPath = os.path.join(os.getcwd(), "face_detector/res10_300x300_ssd_iter_140000.caffemodel")
 faceNet = cv2.dnn.readNet(prototxtPath, weightsPath)
 
 # load the face mask detector model from disk
 print("[INFO] loading face mask detector model...")
-maskNet = load_model(args["model"])
+maskNet = load_model("mask_detector.model")
 
 # initialize the video stream and allow the camera sensor to warm up
 print("[INFO] starting video stream...")
-vs = VideoStream(src=0).start()
+vs = cv2.VideoCapture(0)
+if not vs.isOpened():
+    print('--(!)Error opening camera')
+    exit(0)
+
 time.sleep(2.0)
 
 # loop over the frames from the video stream
 while True:
 	# grab the frame from the threaded video stream and resize it
 	# to have a maximum width of 400 pixels
-	frame = vs.read()
-	frame = imutils.resize(frame, width=400)
+	ret, frame = vs.read()
+	#frame = cv2.resize(frame, (400,400))
 
 	# detect faces in the frame and determine if they are wearing a
 	# face mask or not
@@ -122,8 +114,8 @@ while True:
 
 		# determine the class label and color we'll use to draw
 		# the bounding box and text
-		label = "Mask" if mask > withoutMask else "No Mask"
-		color = (0, 255, 0) if label == "Mask" else (0, 0, 255)
+		label = "Con Mascarilla" if mask > withoutMask else "Sin Mascarilla"
+		color = (0, 255, 0) if label == "Con Mascarilla" else (0, 0, 255)
 
 		# include the probability in the label
 		label = "{}: {:.2f}%".format(label, max(mask, withoutMask) * 100)
