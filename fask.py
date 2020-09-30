@@ -23,8 +23,8 @@ import tensorflow as tf
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", default=0, help="path to video or webcam input int")
 parser.add_argument("-c", "--conf", default=0.5, help="confidence value for face detection")
+parser.add_argument("-s", "--save", default=False, help="Save frames in png pictures")
 args = vars(parser.parse_args())
-
 
 #setting the current directory (just if doesnt find the model files)
 #os.chdir(os.path.dirname(__file__))
@@ -92,7 +92,7 @@ weightsPath = os.path.join(os.getcwd(), "face_detector_model/res10_300x300_ssd_i
 faceDetectionNet = cv2.dnn.readNet(prototxtPath, weightsPath)
 
 #mask classifier model
-maskClassifierNet = tf.keras.models.load_model("mask_detector.model")
+maskClassifierNet = tf.keras.models.load_model("mask_classifier_mobilenet.model")
 
 #start camera livestream
 print("[INFO] Comenzando lectura de video ...")
@@ -130,6 +130,10 @@ while True:
         #diplay bounding boxes and labels with an offset (10 px)
         cv2.putText(frame, label, (x0, y0-10), cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 2)
         cv2.rectangle(frame, (x0, y0), (x1,y1), color, 2)
+
+        #optional --> save image
+        if args["save"]:
+            cv2.imwrite(f"frames/{time.time()}.png", frame)
 
     #plot the frame
     cv2.imshow("Detector de mascarilla", frame)
