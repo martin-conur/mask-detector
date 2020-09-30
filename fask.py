@@ -14,15 +14,20 @@ import cv2
 import numpy as np
 import os
 import time
+import argparse
 
 #Deep learning libraries
 import tensorflow as tf
 
-#hyperparams
-CONFIDENCE = 0.5 #for face detection
+#command line arguments
+parser = argparse.ArgumentParser()
+parser.add_argument("-i", "--input", default=0, help="path to video or webcam input int")
+parser.add_argument("-c", "--conf", default=0.5, help="confidence value for face detection")
+args = vars(parser.parse_args())
 
-#setting the current directory (to avoid issues)
-os.chdir(os.path.dirname(__file__))
+
+#setting the current directory (just if doesnt find the model files)
+#os.chdir(os.path.dirname(__file__))
 
 def face_detection_and_mask_classifier(frame, faceDetectionNet, maskClassifierNet):
     """this function it receives every frame from a video straimng (frame var) and returns
@@ -46,8 +51,8 @@ def face_detection_and_mask_classifier(frame, faceDetectionNet, maskClassifierNe
     for i in range(0, detections.shape[2]):
         #get the confidence of the prediction
         confidence = detections[0, 0, i, 2] #depends on the Nets outputs
-        #if the confidence overpass the threshold value (CONFIDENCE hyperparameter)
-        if confidence >CONFIDENCE:
+        #if the confidence overpass the threshold value (conf argparse)
+        if confidence >args["conf"]:
             #get the bounding box coordinates (4 corners) and scales it to the img size
             (x0, y0, x1, y1) = (detections[0, 0, i, 3:7]*np.array([w, h, w, h])).astype(int)
 
@@ -91,7 +96,7 @@ maskClassifierNet = tf.keras.models.load_model("mask_detector.model")
 
 #start camera livestream
 print("[INFO] Comenzando lectura de video ...")
-video = cv2.VideoCapture(0)
+video = cv2.VideoCapture(args["input"])
 #check if there's Video
 if not video.isOpened():
     print("(!)Error al abrir la cámara")
@@ -104,7 +109,7 @@ while True:
     ret, frame = video.read()
     #in this part it could be resized to assure a certain max shape
     #i won't do that now
-    #frame = cv2.resize(frame, (400,400))
+    frame = cv2.resize(frame, (600,400))
 
     #call the function for detect faces and classify
     (locations, classifications) = face_detection_and_mask_classifier(frame, faceDetectionNet, maskClassifierNet)
