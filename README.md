@@ -13,9 +13,9 @@ This is the 3rd of three individual projects
 
 ## Uses:
 In a command line type 
-´´´console
+```console
 python fask.py
-´´´
+```
 by default uses the first webcam, but you can give it a video by typing  'python fask.py -i "path_to_my_video/my_video.mp4"'
 
 By default uses a confident value of 0.5, you can set to other desired value between 0 and 1 by typing 'python fask.py -c X' 
