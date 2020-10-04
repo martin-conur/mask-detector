@@ -3,16 +3,15 @@ a project with tensorflow and opencv.
 
 This is the 3rd of three individual projects
 
-**Links soon**
-1) First Project: A face dataset maker, using a state of the art SSD trained on face detection we created a dataset of faces with mask and without mask.
+1) [First Project: A face dataset maker, using a state of the art SSD trained on face detection we created a dataset of faces with mask and without mask.](https://github.com/martincontrerasu/face_ROI_extractor)
 2) Second Project: Creating a classifier of mask or nomask classes. We use transfer learning on a trained mobilenet.
 3) Third Project (this one): Using the classifier of the 2nd project and the SSD of the first project to detect masks on real time.
 
 ## Examples:
-One face:
+Many faces:
 ![](https://raw.githubusercontent.com/martincontrerasu/mask-detector/master/examples/01.gif)
 
-or many...
+or one...
 ![](https://raw.githubusercontent.com/martincontrerasu/mask-detector/master/examples/02.gif)
 
 ## Uses:
