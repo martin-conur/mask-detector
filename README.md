@@ -1,4 +1,4 @@
-# FASK: A face mask detector
+# FASK: A face mask detector implementation
 a project with tensorflow and opencv. 
 
 This is the 3rd of three individual projects
